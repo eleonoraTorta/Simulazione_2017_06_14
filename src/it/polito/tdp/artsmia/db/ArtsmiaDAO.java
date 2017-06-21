@@ -44,7 +44,7 @@ public class ArtsmiaDAO {
 		}
 	}
 	
-public static List<Exhibition> getAllExhibitionsFromYear(Integer anno, Map <Integer, Exhibition> mostre) {
+public  List<Exhibition> getAllExhibitionsFromYear(Integer anno, Map <Integer, Exhibition> mostre) {
 		
 		String sql = "SELECT exhibition_id, exhibition_title, begin, end " +
 					"FROM exhibitions " +
@@ -80,11 +80,11 @@ public static List<Exhibition> getAllExhibitionsFromYear(Integer anno, Map <Inte
 		}
 	}
 	
-public static List<Integer> getYears(){
+public  List<Integer> getYears(){
 		
 		String sql = "SELECT DISTINCT  begin " +
 					"FROM exhibitions " +
-					"ORDER BY begin ASC";
+					"ORDER BY begin DESC";
 			
 		try {
 			Connection conn = DBConnect.getConnection() ;
@@ -130,10 +130,11 @@ public void addOpereAMostra( Exhibition e, Map <Integer, ArtObject> map ){
 			
 			int id = rs.getInt("id");
 			String titolo = rs.getString("title");
-			ArtObject ogg = map.get(id);
+			if( map.get(id) != null){
+				ArtObject ogg = map.get(id);
+				e.addOpera(ogg);
+			}
 			
-			e.addOpera(ogg);
-
 		}
 		
 		conn.close();
@@ -146,36 +147,37 @@ public void addOpereAMostra( Exhibition e, Map <Integer, ArtObject> map ){
 	}
 }
 
-// METODO NON USATO
-// public static Integer getNumeroOpere(int id){
-//	
-//	String sql = "SELECT  COUNT(object_id) as num " +
-//				"FROM exhibition_objects " +
-//				"WHERE exhibition_id = ?";
-//	
-//	int numero = 0;
-//		
-//	try {
-//		Connection conn = DBConnect.getConnection() ;
-//
-//		PreparedStatement st = conn.prepareStatement(sql) ;
-//		st.setInt(1, id);
-//		
-//		ResultSet rs = st.executeQuery() ;
-//		
-//		if(rs.next()) {
-//			numero = rs.getInt("num");
-//		}
-//		
-//		conn.close();
-//		return numero ;
-//	} catch (SQLException e) {
-//		// TODO Auto-generated catch block
-//		e.printStackTrace();
-//	//	throw new RuntimeException("SQL Query Error");
-//		return  null;
-//		
-//	}
-//}
+
+ public int getNumeroOpere(int id){
+	
+	String sql = "SELECT  COUNT(object_id) as num " +
+				"FROM exhibition_objects " +
+				"WHERE exhibition_id = ?";
+	
+	int numero = 0;
+		
+	try {
+		Connection conn = DBConnect.getConnection() ;
+
+		PreparedStatement st = conn.prepareStatement(sql) ;
+		st.setInt(1, id);
+		
+		ResultSet rs = st.executeQuery() ;
+		
+		if(rs.next()) {
+			numero = rs.getInt("num");
+		}
+		
+		conn.close();
+		return numero ;
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		throw new RuntimeException("SQL Query Error");
+	//	return  null;
+		
+	}
+}
+
 
 }

@@ -79,7 +79,9 @@ public class Exhibition {
 	}
 
 	public void addOpera(ArtObject ogg) {
-		opere.add(ogg);
+		if( !opere.contains(ogg)){
+			opere.add(ogg);
+		}
 	}
 	
 	public List <ArtObject> getListaOggetti(){

@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.Graphs;
 import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
 import org.w3c.dom.events.Event;
@@ -21,24 +22,16 @@ public class Model {
 	private ArtsmiaDAO dao ;
 	private List <Exhibition> mostre;
 	private List <ArtObject> opere;
-	private Map <Integer, Exhibition> mappa = new TreeMap <Integer, Exhibition>();
-	private Map <Integer, ArtObject> map = new TreeMap <Integer, ArtObject>();
-	private DirectedGraph <Exhibition, DefaultEdge> grafo;
+	private Map <Integer, Exhibition> mappa;
+	private Map <Integer, ArtObject> map;
+     DirectedGraph <Exhibition, DefaultEdge> grafo;
 	
-	// VARIABILI PER LA SIMULAZIONE
-	// Variabili simulazione
-	
-	
-	// Variabili globali ( del mondo)
-	
-	// Variabili di interesse
-	 // numero di opere viste da ogni studente
-	
-	// Lista degli event
-	PriorityQueue <Evento> queue;
 	
 	public Model(){
 		this.dao = new ArtsmiaDAO();
+		this.mappa = new TreeMap <Integer, Exhibition>();
+		this.map = new TreeMap <Integer, ArtObject>();
+		
 	}
 	
 	public List <Exhibition> getMostre(int anno){
@@ -71,14 +64,15 @@ public class Model {
 
 	public void creaGrafo(int anno) {
 		
-		this.grafo = new SimpleDirectedGraph <>(DefaultEdge.class);
+		this.grafo = new SimpleDirectedGraph <Exhibition, DefaultEdge>(DefaultEdge.class);
 		
 		// Aggiungo i vertici
-		Graphs.addAllVertices(grafo, this.getMostre(anno));
+		this.getMostre(anno);
+		Graphs.addAllVertices(grafo, mostre);
 		
 		// Aggiungo gli archi
-		for( Exhibition e1 : this.grafo.vertexSet()){
-			for( Exhibition e2 : this.grafo.vertexSet()){
+		for( Exhibition e1 : grafo.vertexSet()){
+			for( Exhibition e2 : grafo.vertexSet()){
 				if( !e1.equals(e2)){
 					if( e2.getInizio() > e1.getInizio() && e2.getInizio() < e1.getFine()){
 						if(! grafo.containsEdge(grafo.getEdge(e1, e2))){
@@ -93,6 +87,9 @@ public class Model {
 	
 	}
 	
+	// Stabilire se il grafo è FORTEMENTE CONNESSO
+	
+	//OPZIONE 1
 	public boolean fortementeConnesso(){
 		ConnectivityInspector <Exhibition, DefaultEdge> inspector = new ConnectivityInspector <Exhibition, DefaultEdge>(this.grafo);
 		if ( inspector.isGraphConnected() == true){
@@ -101,6 +98,17 @@ public class Model {
 		return false;	
 	}
 	
+	// OPZIONE 2
+	public boolean fortementeConnesso2(){	
+		KosarajuStrongConnectivityInspector<Exhibition, DefaultEdge> ksci = new KosarajuStrongConnectivityInspector<Exhibition, DefaultEdge>(grafo);
+		return ksci.isStronglyConnected();
+	}
+	
+	
+	// Valuto quale mostra contenga piu opere
+	
+	// METODO 1 (apparentemente sbagliato)
+	
 	public Exhibition getMostraPiuPiena(){
 		int max = Integer.MIN_VALUE;
 		Exhibition mostra = null;
@@ -108,7 +116,7 @@ public class Model {
 		// Aggiungo le opere alle mostre
 		this.getOpere(); // prima mi assicuro di aver riempito la mappa di opere
 		for( Exhibition e : this.grafo.vertexSet()){
-			dao.addOpereAMostra(e, map);
+				dao.addOpereAMostra(e, map);
 		}
 		
 		for( Exhibition e : this.grafo.vertexSet()){
@@ -119,57 +127,29 @@ public class Model {
 		}
 		return mostra;	
 	}
+	
+	
+	// METODO 2 ( non sto aggiungendo le opere )
+	public Exhibition getMostraPiuPiena2(){
+		int max = Integer.MIN_VALUE;
+		Exhibition mostra = null;
+		
+		for( Exhibition e : this.grafo.vertexSet()){
+			if(dao.getNumeroOpere(e.getId()) > max){
+				max = dao.getNumeroOpere(e.getId());
+				mostra = e;
+			}	
+		}
+		return mostra;
+	}
+	
+	public int getNumeroOpere( Exhibition e){
+		return dao.getNumeroOpere(e.getId());
+	}
 
 	public DirectedGraph<Exhibition, DefaultEdge> getGrafo() {
 		return grafo;
 	}
 
-	// Aggiunge i primi eventi alla coda 
-	public void simula(int n, int anno) {
-		
-		List < Studente> studenti = new ArrayList <Studente>();
-		for( int i = 1 ; i <= n ; i++){
-			Studente s = new Studente ( i);
-			studenti.add(s);
-		}
-		
 	
-	}
-	
-
-	// Metodo per scegliere la mostra di partenza uguale per tutti
-	public Exhibition scegliMostraIniziale(int anno){
-	
-		// Prendo tutte le mostre iniziate nell'anno selezionato dallo studente
-		List < Exhibition> candidate = new ArrayList <Exhibition>();
-		for( Exhibition e : this.getMostre(anno)){
-			if( e.getInizio() == anno){
-				candidate.add( e);
-			}
-		}
-		
-		// Genero un numero random corrispondente alla posizione nella lista  della mostra da cui inizio
-		int dim = candidate.size();
-		int random = (int) (Math.random() * dim ) ;
-
-		Exhibition partenza = candidate.get(random);
-		return partenza;
-	}
-	
-	
-	// Metodo per scegliere ogni volta una nuova mostra
-	public Exhibition scegliNextMostra( Exhibition e){
-		
-		List <Exhibition> raggiungibili = new ArrayList <Exhibition>();
-		
-		for ( DefaultEdge arco : grafo.outgoingEdgesOf(e)){
-			raggiungibili.add( grafo.getEdgeTarget(arco));
-		}
-		
-		int dim = raggiungibili.size();
-		int random = (int) (Math.random() * dim ) ;
-
-		Exhibition next = raggiungibili.get(random);
-		return next;
-	}
 }
