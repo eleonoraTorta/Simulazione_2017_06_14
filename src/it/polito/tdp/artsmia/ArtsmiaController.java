@@ -51,7 +51,7 @@ public class ArtsmiaController {
     	model.creaGrafo(anno);
 
     	// verifico se il grafo è fortemente connesso
-    	if( model.fortementeConnesso() == true){
+    	if( model.isFortementeConnesso() == true){
     		txtResult.appendText("Il grafo è fortemente connesso \n");
     	} else{
     		txtResult.appendText("Il grafo  NON è fortemente connesso\n");

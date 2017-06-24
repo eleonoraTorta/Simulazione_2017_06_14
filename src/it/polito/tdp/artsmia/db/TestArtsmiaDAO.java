@@ -22,10 +22,10 @@ public class TestArtsmiaDAO {
 		Map<Integer, Exhibition> mappa = new TreeMap <Integer, Exhibition>();
 		Map<Integer, ArtObject> map = new TreeMap <Integer, ArtObject>();
 		
-		List<ArtObject> objects = dao.listObject(map) ;
+	//	List<ArtObject> objects = dao.listObject(map) ;
 	//	System.out.println(objects.size());
 		
-		dao.getAllExhibitionsFromYear(1995, mappa) ;
+	//	dao.getAllExhibitionsFromYear(1995, mappa) ;
 			
 		
 		for( Exhibition e : mappa.values()){

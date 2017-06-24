@@ -36,7 +36,12 @@ public class Model {
 	
 	public List <Exhibition> getMostre(int anno){
 		if( mostre == null){
-			this.mostre = dao.getAllExhibitionsFromYear(anno, mappa) ;
+		//	this.mostre = dao.getAllExhibitionsFromYear(anno, mappa) ;
+			this.mostre = dao.getAllExhibitionsFromYear(anno) ;
+			
+			for( Exhibition e : mostre){
+				mappa.put(e.getId(), e);
+			}
 		}
 		return mostre;
 		
@@ -44,7 +49,12 @@ public class Model {
 	
 	public List <ArtObject> getOpere(){
 		if( opere == null){
-			this.opere = dao.listObject(map) ;
+	//		this.opere = dao.listObject(map) ;
+			this.opere = dao.listObject() ;
+			
+			for( ArtObject o : opere){
+				map.put(o.getObjectId(), o);
+			}
 		}
 		return opere;
 		
@@ -89,17 +99,7 @@ public class Model {
 	
 	// Stabilire se il grafo è FORTEMENTE CONNESSO
 	
-	//OPZIONE 1
-	public boolean fortementeConnesso(){
-		ConnectivityInspector <Exhibition, DefaultEdge> inspector = new ConnectivityInspector <Exhibition, DefaultEdge>(this.grafo);
-		if ( inspector.isGraphConnected() == true){
-			return true;
-		}
-		return false;	
-	}
-	
-	// OPZIONE 2
-	public boolean fortementeConnesso2(){	
+	public boolean isFortementeConnesso(){	
 		KosarajuStrongConnectivityInspector<Exhibition, DefaultEdge> ksci = new KosarajuStrongConnectivityInspector<Exhibition, DefaultEdge>(grafo);
 		return ksci.isStronglyConnected();
 	}

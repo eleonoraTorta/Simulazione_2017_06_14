@@ -13,7 +13,9 @@ import it.polito.tdp.artsmia.model.Exhibition;
 
 public class ArtsmiaDAO {
 
-	public List<ArtObject> listObject( Map <Integer, ArtObject> mappa) {
+//	public List<ArtObject> listObject( Map <Integer, ArtObject> mappa) {
+		public List<ArtObject> listObject( ) {
+			
 		
 		String sql = "SELECT * from objects";
 
@@ -32,7 +34,7 @@ public class ArtsmiaDAO {
 				String titolo = res.getString("title");
 				ArtObject ogg = new ArtObject (id, titolo);
 				result.add(ogg);
-				mappa.put(ogg.getObjectId(), ogg);
+			//	mappa.put(ogg.getObjectId(), ogg);
 			}
 
 			conn.close();
@@ -44,7 +46,8 @@ public class ArtsmiaDAO {
 		}
 	}
 	
-public  List<Exhibition> getAllExhibitionsFromYear(Integer anno, Map <Integer, Exhibition> mostre) {
+//public  List<Exhibition> getAllExhibitionsFromYear(Integer anno, Map <Integer, Exhibition> mostre) {
+	public  List<Exhibition> getAllExhibitionsFromYear(Integer anno) {
 		
 		String sql = "SELECT exhibition_id, exhibition_title, begin, end " +
 					"FROM exhibitions " +
@@ -67,7 +70,7 @@ public  List<Exhibition> getAllExhibitionsFromYear(Integer anno, Map <Integer, E
 				int fine = rs.getInt("end");
 				Exhibition e = new Exhibition(id, nome,inizio,fine);
 				list.add(e) ;
-				mostre.put(id, e);
+	//			mostre.put(id, e);
 			}
 			
 			conn.close();
